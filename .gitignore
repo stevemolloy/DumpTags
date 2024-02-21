@@ -1,2 +1,4 @@
 obj
 bin
+.cache/clangd/index
+compile_commands.json

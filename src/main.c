@@ -3,9 +3,7 @@
 #include <string.h>
 #include <assert.h>
 
-typedef enum {
-  STATE_SKIPPING = 0,
-} State;
+#include "json.h"
 
 int read_entire_file(const char *filename, char **buffer)
 {
@@ -44,17 +42,23 @@ char *tok;
 
 int main(void)
 {
-  const char *filename = "./dump_info.txt";
+  const char *filename = "./R3_B080603_CAB02_VAC_PLC01.json";
+  // const char *filename = "./rickandmorty.json";
   char *contents;
 
   read_entire_file(filename, &contents);
 
-  tok = strtok(contents, " \n");
-  while (tok != NULL)
-  {
-    printf("%s\n", tok);
-    tok = strtok(NULL, " \n");
+  result(json_element) element_result = json_parse(contents);
+
+  if (result_is_err(json_element)(&element_result)) {
+    typed(json_error) error = result_unwrap_err(json_element)(&element_result);
+    fprintf(stderr, "Error parsing JSON: %s\n", json_error_to_string(error));
+    return -1;
   }
+  typed(json_element) element = result_unwrap(json_element)(&element_result);
+
+  json_print(&element, 2);
+  json_free(&element);
 
   free(contents);
 
