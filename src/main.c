@@ -42,7 +42,8 @@ char *tok;
 
 int main(void)
 {
-  const char *filename = "./R3_B080603_CAB02_VAC_PLC01.json";
+  // const char *filename = "./R3_B080603_CAB02_VAC_PLC01.json";
+  const char *filename = "./R3_B080603_CAB02_VAC_PLC02.json";
   // const char *filename = "./rickandmorty.json";
   char *contents;
 
@@ -64,3 +65,4 @@ int main(void)
 
   return 0;
 }
+
