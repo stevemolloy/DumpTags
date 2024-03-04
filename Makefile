@@ -1,5 +1,5 @@
 CC=clang
-CFLAGS=-Wall -pedantic -std=c18 -ggdb -DJSON_SKIP_WHITESPACE
+CFLAGS=-Wall -Wextra -pedantic -std=c18 -ggdb -DJSON_SKIP_WHITESPACE
 INCLUDES=-I./external/C-Simple-JSON-Parser/ -I./external/lib/
 
 EXE=main
