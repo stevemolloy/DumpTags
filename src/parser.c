@@ -128,7 +128,7 @@ Node *parse_statement(Tokens *tokens) {
 
 void print_node(Node *n, int depth) {
   printf("%*s", depth * 2, " ");
-
+  
   switch (n->ntype) {
   case NT_SIGNAL:
     printf("SIGNAL " SV_Fmt "\n", SV_Arg(n->as.signal.name));
@@ -142,5 +142,24 @@ void print_node(Node *n, int depth) {
       print_node(n->as.binop.lhs, depth + 1);
       print_node(n->as.binop.rhs, depth + 1);
   } break;
-  } 
+  }
+}
+
+void extract_signal_names_from_tree(Node *root, String_View_List *list) {
+  if (root->ntype == NT_SIGNAL) {
+      da_append(list, root->as.signal.name);
+  }
+
+  switch (root->ntype) {
+  case NT_BINOP:
+    extract_signal_names_from_tree(root->as.binop.lhs, list);
+    extract_signal_names_from_tree(root->as.binop.rhs, list);
+    break;
+  case NT_BOOL:
+  case NT_SIGNAL: break;
+  default: {
+    fprintf(stderr, "ERROR: Memory corruption in root-ntype\n");
+    exit(1);
+  }
+  }
 }

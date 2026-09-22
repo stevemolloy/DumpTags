@@ -54,6 +54,12 @@ typedef struct Parser {
   size_t pos;
 } Parser;
 
+typedef struct String_View_List {
+  String_View *items;
+  size_t count;
+  size_t capacity;
+} String_View_List;
+
 Token *peek(Parser *p);
 Token *next(Parser *p);
 Node *new_node(NodeType t);
@@ -62,5 +68,6 @@ Node *parse_primary(Parser *p);
 Node *parse_expr(Parser *p, int min_bp);
 Node *parse_statement(Tokens *tokens);
 void print_node(Node * n, int depth);
-  
+void extract_signal_names_from_tree(Node *root, String_View_List *list);
+
 #endif

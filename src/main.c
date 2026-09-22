@@ -9,17 +9,15 @@
 #define NOB_IMPLEMENTATION
 #include "nob.h"
 
-int main(void)
-{
+int main(void) {
   const char *filename = "./R3_B080603_CAB02_VAC_PLC01.json";
   // const char *filename = "./R3_B080603_CAB02_VAC_PLC02.json";
-  char *contents;
+  String_Builder contents = {0};
 
-  sdm_read_entire_file(filename, &contents);
+  read_entire_file(filename, &contents);
 
-  result(json_element) top_level_result = json_parse(contents);
-  if (result_is_err(json_element)(&top_level_result))
-  {
+  result(json_element) top_level_result = json_parse(contents.items);
+  if (result_is_err(json_element)(&top_level_result)) {
     typed(json_error) error = result_unwrap_err(json_element)(&top_level_result);
     fprintf(stderr, "Error parsing JSON: %s\n", json_error_to_string(error));
     return -1;
@@ -43,14 +41,20 @@ int main(void)
 
   Tokens tokens = lex_string_view(stmt_sv);
   Node *root = parse_statement(&tokens);
-  if (root == NULL)
-    return 1;
+  if (root == NULL) return 1;
   print_node(root, 0);
+
+  String_View_List signals = {0};
+  extract_signal_names_from_tree(root, &signals);
+
+  printf("The following signals were found in the tree:\n");
+  da_foreach(String_View, signal, &signals) {
+      printf("\t" SV_Fmt "\n", SV_Arg(*signal));
+  }
 
   free(string_to_parse);
   json_free(&top_level_element);
-  free(contents);
+  free(contents.items);
 
   return 0;
 }
-
