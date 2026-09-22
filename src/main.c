@@ -1,20 +1,13 @@
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
+#include <stdlib.h>
 
-#include "json.h"
 #include "lib.h"
+#include "lexer.h"
+#include "parser.h"
 
-typedef enum {
-  AND = 0,
-  OR,
-} logical_op_type;
-
-typedef struct {
-  logical_op_type type;
-  struct operation *lhs;
-  struct operation *rhs;
-} operation;
+#define NOB_IMPLEMENTATION
+#include "nob.h"
 
 int main(void)
 {
@@ -22,7 +15,7 @@ int main(void)
   // const char *filename = "./R3_B080603_CAB02_VAC_PLC02.json";
   char *contents;
 
-  read_entire_file(filename, &contents);
+  sdm_read_entire_file(filename, &contents);
 
   result(json_element) top_level_result = json_parse(contents);
   if (result_is_err(json_element)(&top_level_result))
@@ -46,9 +39,16 @@ int main(void)
 
   printf("%s\n", string_to_parse);
 
+  String_View stmt_sv = sv_from_cstr(string_to_parse);
+
+  Tokens tokens = lex_string_view(stmt_sv);
+  Node *root = parse_statement(&tokens);
+  if (root == NULL)
+    return 1;
+  print_node(root, 0);
+
   free(string_to_parse);
   json_free(&top_level_element);
-
   free(contents);
 
   return 0;
