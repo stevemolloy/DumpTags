@@ -6,7 +6,8 @@ const char *tokentype_text(TokenType ttype) {
   case TT_SIG:		return "TT_SIG";
   case TT_EQTEST:	return "TT_EQ";
   case TT_AND:		return "TT_AND";
-  case TT_OR:		return "TT_OR";
+  case TT_OR:           return "TT_OR";
+  case TT_NOT:          return "TT_NOT";
   case TT_BOOL:		return "TT_BOOL";
   case TT_OPAREN:	return "TT_OPAREN";
   case TT_CPAREN:	return "TT_CPAREN";
@@ -20,6 +21,7 @@ TokenType classify_token(Token token) {
   if (sv_eq(ttext, sv_from_cstr("="))) return TT_EQTEST;
   else if (sv_eq(ttext, sv_from_cstr("AND"))) return TT_AND;
   else if (sv_eq(ttext, sv_from_cstr("OR"))) return TT_OR;
+  else if (sv_eq(ttext, sv_from_cstr("NOT"))) return TT_NOT;
   else if (sv_eq(ttext, sv_from_cstr("("))) return TT_OPAREN;
   else if (sv_eq(ttext, sv_from_cstr(")"))) return TT_CPAREN;
   else if (sv_eq(ttext, sv_from_cstr("0")) || sv_eq(ttext, sv_from_cstr("1")))

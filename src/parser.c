@@ -21,6 +21,15 @@ Node *new_node(NodeType t) {
   return n;
 }
 
+Node *new_unop(UnOpType t, Node *rhs) {
+  Node *n = new_node(NT_UNOP);
+  n->as.unop.utype = t;
+  n->as.unop.rhs = rhs;
+  return n;
+}
+
+#define NOT_BP 4
+
 int infix_bp(Token *t, BinOpType *out) {
   switch (t->ttype) {
   case TT_OR:
@@ -32,6 +41,7 @@ int infix_bp(Token *t, BinOpType *out) {
   case TT_EQTEST:
     *out = BO_EQ;
     return 3;
+  case TT_NOT:
   case TT_UNKNOWN:
   case TT_SIG:
   case TT_BOOL:
@@ -51,6 +61,12 @@ Node *parse_primary(Parser *p) {
   }
 
   switch (t->ttype) {
+  case TT_NOT: {
+    Node *rhs = parse_expr(p, NOT_BP);
+    if (!rhs)
+      return NULL;
+    return new_unop(UO_NOT, rhs);
+  }
   case TT_SIG: {
     Node *n = new_node(NT_SIGNAL);
     n->as.signal.name = t->text;
@@ -68,7 +84,7 @@ Node *parse_primary(Parser *p) {
       return NULL;
     Token *close = next(p);
     if (!close || close->ttype != TT_CPAREN) {
-      fprintf(stderr, "ERROR: expected \")\"");
+      fprintf(stderr, "ERROR: expected \")\"\n");
       return NULL;
     }
     return inner;
@@ -120,9 +136,10 @@ Node *parse_statement(Tokens *tokens) {
   Parser p = {.tokens = tokens};
   Node *root = parse_expr(&p, 0);
   if (root && peek(&p)) {
+      fprintf(stderr, "ERROR: %zu trailing tokens not handled\n", p.tokens->count);
       root = NULL;
   }
-  if (!root) fprintf(stderr, "ERROR: Parser error!");
+  if (!root) fprintf(stderr, "ERROR: Parser error!\n");
   return root;
 }
 
@@ -142,6 +159,14 @@ void print_node(Node *n, int depth) {
       print_node(n->as.binop.lhs, depth + 1);
       print_node(n->as.binop.rhs, depth + 1);
   } break;
+  case NT_UNOP: {
+    printf("NOT\n");
+    print_node(n->as.unop.rhs, depth + 1);
+  } break;
+  default: {
+    fprintf(stderr, "ERROR: Memory corruption in root-ntype\n");
+    exit(1);
+  }
   }
 }
 
@@ -155,6 +180,8 @@ void extract_signal_names_from_tree(Node *root, String_View_List *list) {
     extract_signal_names_from_tree(root->as.binop.lhs, list);
     extract_signal_names_from_tree(root->as.binop.rhs, list);
     break;
+  case NT_UNOP:
+    extract_signal_names_from_tree(root->as.unop.rhs, list);
   case NT_BOOL:
   case NT_SIGNAL: break;
   default: {

@@ -10,6 +10,7 @@ typedef enum NodeType {
   NT_SIGNAL,
   NT_BOOL,
   NT_BINOP,
+  NT_UNOP,
 } NodeType;
 
 typedef struct Signal { 
@@ -20,6 +21,15 @@ typedef struct Boolnode {
   String_View text;
   bool value;
 } Boolnode;
+
+typedef enum UnOpType {
+  UO_NOT,
+} UnOpType;
+
+typedef struct UnOp {
+  UnOpType utype;
+  Node * rhs;
+} UnOp;
 
 typedef enum BinOpType {
   BO_AND,
@@ -45,6 +55,7 @@ struct Node {
     Signal signal;
     Boolnode boolnode;
     BinOp binop;
+    UnOp unop;
     EqTest eqtest;
   } as;
 };

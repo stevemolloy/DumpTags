@@ -9,6 +9,7 @@ typedef enum TokenType {
   TT_EQTEST,
   TT_AND,
   TT_OR,
+  TT_NOT,
   TT_BOOL,
   TT_OPAREN,
   TT_CPAREN,
