@@ -80,5 +80,6 @@ Node *parse_expr(Parser *p, int min_bp);
 Node *parse_statement(Tokens *tokens);
 void print_node(Node * n, int depth);
 void extract_signal_names_from_tree(Node *root, String_View_List *list);
+void simplify_node_tree(Node *root);
 
 #endif

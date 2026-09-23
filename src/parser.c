@@ -190,3 +190,18 @@ void extract_signal_names_from_tree(Node *root, String_View_List *list) {
   }
   }
 }
+
+void simplify_node_tree(Node *root) {
+  if (root->ntype == NT_BINOP && root->as.binop.btype == BO_EQ &&
+      root->as.binop.rhs->ntype == NT_BOOL && root->as.binop.lhs->ntype == NT_SIGNAL) {
+    if (root->as.binop.rhs->as.boolnode.value) {
+	*root = *root->as.binop.lhs;
+    } else {
+	*root = *new_unop(UO_NOT, root->as.binop.lhs);
+    }
+  }
+  if (root->ntype == NT_BINOP) {
+    simplify_node_tree(root->as.binop.lhs);
+    simplify_node_tree(root->as.binop.rhs);
+  }
+}

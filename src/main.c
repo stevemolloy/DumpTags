@@ -50,10 +50,16 @@ int main(void) {
     json_element_t conds = result_unwrap(json_element)(&conds_res);
     Tokens tokens = lex_string_view(sv_from_cstr(conds.value.as_string));
     hmput(impls, key, parse_statement(&tokens));
-    printf("Conditions: %s\n", conds.value.as_string);
+    // printf("Conditions: %s\n", conds.value.as_string);
   }
 
-  printf("I found %ld implementations\n", hmlen(impls));
+  // printf("I found %ld implementations\n", hmlen(impls));
+  // for (size_t i = 0; i < hmlenu(impls); i++) {
+  //   const char *key = impls[i].key;
+  //   Node *node = impls[i].value;
+  //   printf("Key: %s\n", key);
+  //   print_node(node, 1);
+  // }
 
   json_element_t main_rfdump_tag_ele = get_sub_element_unwrapped(rfdump_head, "B_R3_VAC_PLC01_RFDMP_LOCAL_HB");
 
@@ -70,6 +76,9 @@ int main(void) {
   if (root == NULL) return 1;
   print_node(root, 0);
 
+  simplify_node_tree(root);
+  print_node(root, 0);
+  
   String_View_List signals = {0};
   extract_signal_names_from_tree(root, &signals);
 
@@ -79,6 +88,7 @@ int main(void) {
   }
 
   free(string_to_parse);
+  hmfree(impls);
   json_free(&top_level_element);
   free(contents.items);
 
