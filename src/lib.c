@@ -38,7 +38,13 @@ int sdm_read_entire_file(const char *filename, char **buffer)
   return file_size;
 }
 
-typed(json_element) get_sub_element(json_element_t haystack, const char *needle)
+result(json_element) get_sub_element(json_element_t haystack, const char *needle)
+{
+  assert(haystack.type == JSON_ELEMENT_TYPE_OBJECT && "`haystack` needs to be a JSON obj for this to work");
+  return json_object_find(haystack.value.as_object, needle);
+}
+
+typed(json_element) get_sub_element_unwrapped(json_element_t haystack, const char *needle)
 {
   assert(haystack.type == JSON_ELEMENT_TYPE_OBJECT && "`haystack` needs to be a JSON obj for this to work");
   result(json_element) element_result = json_object_find(haystack.value.as_object, needle);
