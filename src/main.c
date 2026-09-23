@@ -49,45 +49,47 @@ int main(void) {
     }
     json_element_t conds = result_unwrap(json_element)(&conds_res);
     Tokens tokens = lex_string_view(sv_from_cstr(conds.value.as_string));
-    hmput(impls, key, parse_statement(&tokens));
+    Node *new_node = parse_statement(&tokens);
+    simplify_node_tree(new_node);
+    hmput(impls, key, new_node);
     // printf("Conditions: %s\n", conds.value.as_string);
   }
 
-  // printf("I found %ld implementations\n", hmlen(impls));
-  // for (size_t i = 0; i < hmlenu(impls); i++) {
-  //   const char *key = impls[i].key;
-  //   Node *node = impls[i].value;
-  //   printf("Key: %s\n", key);
-  //   print_node(node, 1);
-  // }
-
-  json_element_t main_rfdump_tag_ele = get_sub_element_unwrapped(rfdump_head, "B_R3_VAC_PLC01_RFDMP_LOCAL_HB");
-
-  json_element_t rfdump_conditions_ele = get_sub_element_unwrapped(main_rfdump_tag_ele, "conditions");
-
-  size_t string_len = strlen(rfdump_conditions_ele.value.as_string) + 1;
-  char *string_to_parse = calloc(string_len, sizeof(char));
-  memcpy(string_to_parse, rfdump_conditions_ele.value.as_string, string_len);
-
-  String_View stmt_sv = sv_from_cstr(string_to_parse);
-
-  Tokens tokens = lex_string_view(stmt_sv);
-  Node *root = parse_statement(&tokens);
-  if (root == NULL) return 1;
-  print_node(root, 0);
-
-  simplify_node_tree(root);
-  print_node(root, 0);
-  
-  String_View_List signals = {0};
-  extract_signal_names_from_tree(root, &signals);
-
-  printf("The following signals were found in the tree:\n");
-  da_foreach(String_View, signal, &signals) {
-      printf("\t" SV_Fmt "\n", SV_Arg(*signal));
+  printf("I found %ld implementations\n", hmlen(impls));
+  for (size_t i = 0; i < hmlenu(impls); i++) {
+    const char *key = impls[i].key;
+    Node *node = impls[i].value;
+    printf("Key: %s\n", key);
+    print_node(node, 1);
   }
 
-  free(string_to_parse);
+  // json_element_t main_rfdump_tag_ele = get_sub_element_unwrapped(rfdump_head, "B_R3_VAC_PLC01_RFDMP_LOCAL_HB");
+
+  // json_element_t rfdump_conditions_ele = get_sub_element_unwrapped(main_rfdump_tag_ele, "conditions");
+
+  // size_t string_len = strlen(rfdump_conditions_ele.value.as_string) + 1;
+  // char *string_to_parse = calloc(string_len, sizeof(char));
+  // memcpy(string_to_parse, rfdump_conditions_ele.value.as_string, string_len);
+
+  // String_View stmt_sv = sv_from_cstr(string_to_parse);
+
+  // Tokens tokens = lex_string_view(stmt_sv);
+  // Node *root = parse_statement(&tokens);
+  // if (root == NULL) return 1;
+  // print_node(root, 0);
+
+  // simplify_node_tree(root);
+  // print_node(root, 0);
+  
+  // String_View_List signals = {0};
+  // extract_signal_names_from_tree(root, &signals);
+
+  // printf("The following signals were found in the tree:\n");
+  // da_foreach(String_View, signal, &signals) {
+  //     printf("\t" SV_Fmt "\n", SV_Arg(*signal));
+  // }
+
+  // free(string_to_parse);
   hmfree(impls);
   json_free(&top_level_element);
   free(contents.items);
